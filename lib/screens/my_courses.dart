@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../services/firestore_service.dart';
 import '../../services/auth_service.dart';
-import '../../models/course.dart';
+import '../../models/models.dart';
 import '../../theme/theme.dart';
 
 class MyCoursesPage extends StatelessWidget {
@@ -192,13 +192,23 @@ class EnrolledCourseCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     
-                    // Progress Bar (Mock)
+                    // Progress Bar
                     ClipRRect(
                       borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: 0.0, // TODO: Implement progress tracking
-                        backgroundColor: AppTheme.glassBg,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryNeon),
+                      child: StreamBuilder<double>(
+                        stream: context.read<FirestoreService>().getCourseProgress(
+                          context.read<User?>()?.uid ?? '',
+                          course.id,
+                          course.totalLessons,
+                        ),
+                        builder: (context, snapshot) {
+                          final progress = snapshot.data ?? 0.0;
+                          return LinearProgressIndicator(
+                            value: progress,
+                            backgroundColor: AppTheme.glassBg,
+                            valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryNeon),
+                          );
+                        }
                       ),
                     ),
                   ],
